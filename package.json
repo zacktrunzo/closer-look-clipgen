@@ -25,10 +25,10 @@
     ],
     "mac": {
       "category": "public.app-category.video",
-      "icon": "build/icon.icns"
+      "icon": "build/icon.png"
     },
     "win": {
-      "icon": "build/icon.ico"
+      "icon": "build/icon.png"
     },
     "linux": {
       "icon": "build/icon.png",
@@ -71,6 +71,8 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "electron": "^31.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "jimp": "^1.6.0",
+    "png-to-ico": "^3.0.1"
   }
 }
