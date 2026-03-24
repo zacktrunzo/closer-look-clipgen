@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
+  <title>Closer Look ClipGen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Titlebar drag region -->
+    <header class="titlebar">
+      <div class="titlebar__brand">
+        <div class="titlebar__logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M2 7 L22 7 L22 4 L2 4 Z" fill="#c8a96e" stroke="none" opacity="0.45"/>
+            <line x1="7" y1="4" x2="5" y2="7"/>
+            <line x1="12" y1="4" x2="10" y2="7"/>
+            <line x1="17" y1="4" x2="15" y2="7"/>
+            <polygon points="10,11 10,17 16,14" fill="#c8a96e" stroke="none"/>
+          </svg>
+        </div>
+        <span class="titlebar__wordmark">Closer Look <span>ClipGen</span></span>
+        <span class="titlebar__divider"></span>
+        <span class="titlebar__sub">Short Form Video Studio</span>
+      </div>
+      <div class="titlebar__controls">
+        <button id="btn-settings" class="titlebar__btn titlebar__settings-btn" title="Settings">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Update notification banner -->
+    <div id="update-banner" class="update-banner" aria-live="polite">
+      <div class="update-banner__inner">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        <span id="update-banner__msg">Checking for updates…</span>
+        <div id="update-progress-bar" class="update-progress-bar" style="display:none">
+          <div id="update-progress-fill" class="update-progress-bar__fill"></div>
+        </div>
+      </div>
+      <button id="update-install-btn" class="update-install-btn" style="display:none">
+        Restart &amp; Update
+      </button>
+    </div>
+
+    <!-- Main content area -->
+    <main id="main-content">
+
+      <!-- ===== DROP ZONE VIEW ===== -->
+      <section id="view-drop" class="view active">
+        <div id="drop-zone" class="drop-zone">
+          <div class="drop-zone__content">
+            <div class="drop-zone__icon">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="drop-zone__eyebrow">Closer Look ClipGen</div>
+            <h2 class="drop-zone__title">Drop your episode here</h2>
+            <p class="drop-zone__sub">16:9 MP4 or MOV · Any length · We'll handle the rest</p>
+            <button id="btn-browse" class="btn btn--ghost">or browse files</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PIPELINE VIEW ===== -->
+      <section id="view-pipeline" class="view">
+        <div class="pipeline">
+          <div class="pipeline__file" id="pipeline-filename"></div>
+          <div class="pipeline__stepper">
+            <div class="step" data-step="extracting">
+              <div class="step__dot"></div>
+              <div class="step__label">Extract Audio</div>
+            </div>
+            <div class="step__line"></div>
+            <div class="step" data-step="transcribing">
+              <div class="step__dot"></div>
+              <div class="step__label">Transcribe</div>
+            </div>
+            <div class="step__line"></div>
+            <div class="step" data-step="analyzing">
+              <div class="step__dot"></div>
+              <div class="step__label">Find Hooks</div>
+            </div>
+            <div class="step__line"></div>
+            <div class="step" data-step="rendering">
+              <div class="step__dot"></div>
+              <div class="step__label">Render Clips</div>
+            </div>
+          </div>
+          <div class="pipeline__status" id="pipeline-status">Preparing…</div>
+          <div class="pipeline__bar-track">
+            <div class="pipeline__bar-fill" id="pipeline-bar"></div>
+          </div>
+          <div class="pipeline__detail" id="pipeline-detail"></div>
+        </div>
+      </section>
+
+      <!-- ===== GALLERY VIEW ===== -->
+      <section id="view-gallery" class="view">
+        <div class="gallery">
+          <div class="gallery__header">
+            <div style="flex:1">
+              <div class="gallery__eyebrow">Closer Look ClipGen</div>
+              <h2 class="gallery__title">Your Clips</h2>
+            </div>
+            <button id="btn-open-folder" class="btn btn--ghost btn--sm">Open folder ↗</button>
+            <button id="btn-new" class="btn btn--primary btn--sm">New Episode</button>
+          </div>
+          <div class="gallery__grid" id="gallery-grid"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ===== SETTINGS MODAL ===== -->
+    <div id="settings-overlay" class="overlay">
+      <div class="modal">
+        <div class="modal__header">
+          <h3>Settings</h3>
+          <button id="btn-close-settings" class="modal__close">✕</button>
+        </div>
+        <div class="modal__body">
+
+          <label class="field">
+            <span class="field__label">Anthropic API Key</span>
+            <input type="password" id="input-apikey" class="field__input" placeholder="sk-ant-…">
+          </label>
+
+          <label class="field">
+            <span class="field__label">Output Directory</span>
+            <div class="field__row">
+              <input type="text" id="input-outdir" class="field__input" readonly>
+              <button id="btn-pick-dir" class="btn btn--ghost btn--sm">Change</button>
+            </div>
+          </label>
+
+          <!-- Background Mode -->
+          <div class="field">
+            <span class="field__label">Background Mode</span>
+            <div class="bg-grid">
+
+              <label class="bg-tile">
+                <input type="radio" name="bg-mode" value="blur-stack">
+                <div class="bg-tile__thumb blur-preview"></div>
+                <span class="bg-tile__label">Blur Stack</span>
+              </label>
+
+              <label class="bg-tile">
+                <input type="radio" name="bg-mode" value="center-crop">
+                <div class="bg-tile__thumb crop-preview">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="6 2 2 2 2 6"/><polyline points="18 2 22 2 22 6"/>
+                    <polyline points="6 22 2 22 2 18"/><polyline points="18 22 22 22 22 18"/>
+                  </svg>
+                </div>
+                <span class="bg-tile__label">Center Crop</span>
+              </label>
+
+              <label class="bg-tile">
+                <input type="radio" name="bg-mode" value="branded-bg">
+                <div class="bg-tile__thumb">
+                  <img src="../../assets/Branded%20Backgrounds/CloserLook_Instagram_Reel_Background.jpg" alt="Template 1">
+                </div>
+                <span class="bg-tile__label">Template 1</span>
+              </label>
+
+              <label class="bg-tile">
+                <input type="radio" name="bg-mode" value="branded-overlay-1">
+                <div class="bg-tile__thumb">
+                  <img src="../../assets/Branded%20Backgrounds/CloserLook_Instagram_Reel_Transparent_Overlay_1.png" alt="Template 2">
+                </div>
+                <span class="bg-tile__label">Template 2</span>
+              </label>
+
+              <label class="bg-tile">
+                <input type="radio" name="bg-mode" value="branded-overlay-2">
+                <div class="bg-tile__thumb">
+                  <img src="../../assets/Branded%20Backgrounds/CloserLook_Instagram_Reel_Transparent_Overlay_2.png" alt="Template 3">
+                </div>
+                <span class="bg-tile__label">Template 3</span>
+              </label>
+
+              <label class="bg-tile">
+                <input type="radio" name="bg-mode" value="custom-image">
+                <div class="bg-tile__thumb upload-preview">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <span class="bg-tile__label">Custom Image</span>
+              </label>
+
+            </div>
+
+            <!-- AI Track — full-width feature tile -->
+            <label class="bg-tile bg-tile--ai">
+              <input type="radio" name="bg-mode" value="ai-track">
+              <div class="bg-tile__thumb ai-preview">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                  <circle cx="12" cy="8" r="1.5" fill="currentColor"/>
+                  <line x1="12" y1="2" x2="12" y2="4"/>
+                  <line x1="12" y1="12" x2="12" y2="14"/>
+                  <line x1="6" y1="8" x2="4" y2="8"/>
+                  <line x1="20" y1="8" x2="18" y2="8"/>
+                </svg>
+              </div>
+              <div class="bg-tile__ai-info">
+                <span class="bg-tile__label">AI Subject Tracking</span>
+                <span class="bg-tile__ai-desc">Auto-reframes to follow the speaker · Downloads ~40 MB model on first use</span>
+              </div>
+            </label>
+
+          </div>
+
+          <!-- Custom image path (shown only when custom-image is selected) -->
+          <div class="field" id="field-custom-bg">
+            <span class="field__label">Custom Background Image</span>
+            <div class="field__row">
+              <input type="text" id="input-custombg" class="field__input" readonly placeholder="Select a JPG or PNG…">
+              <button id="btn-pick-bg" class="btn btn--ghost btn--sm">Browse</button>
+            </div>
+          </div>
+
+          <label class="field">
+            <span class="field__label">Caption Style</span>
+            <select id="select-captions" class="field__input">
+              <option value="box-highlight">Box Highlight — rounded rect behind word (default)</option>
+              <option value="bold-highlight">Bold + Active Word Colour</option>
+              <option value="karaoke">Karaoke Fill</option>
+              <option value="minimal">Minimal (no highlight)</option>
+            </select>
+          </label>
+
+          <div class="field">
+            <span class="field__label">Caption Highlight Colour</span>
+            <div class="field__row field__row--color">
+              <input type="color" id="input-highlight-color" class="color-swatch" value="#2d2d2d">
+              <input type="text"  id="input-highlight-hex"   class="field__input" value="#2d2d2d" maxlength="7" placeholder="#2d2d2d">
+            </div>
+          </div>
+
+          <label class="field">
+            <span class="field__label">Caption Font Weight</span>
+            <select id="select-fontweight" class="field__input">
+              <option value="regular">Open Sans Regular</option>
+              <option value="semibold">Open Sans SemiBold</option>
+              <option value="bold">Open Sans Bold (default)</option>
+              <option value="extrabold">Open Sans ExtraBold</option>
+            </select>
+          </label>
+
+          <!-- AI Graphic Overlays toggle -->
+          <div class="field field--toggle-row">
+            <div class="field--toggle-row__info">
+              <span class="field__label">
+                AI Graphic Overlays
+                <span class="beta-badge">BETA</span>
+              </span>
+              <span class="field__hint" id="helios-status-desc">Adds animated hooks, pull quotes &amp; callouts on top of your clip</span>
+            </div>
+            <label class="toggle" for="toggle-helios">
+              <input type="checkbox" id="toggle-helios">
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </label>
+          </div>
+
+          <label class="field">
+            <span class="field__label">Max Clips per Episode</span>
+            <input type="number" id="input-maxclips" class="field__input" min="1" max="10" value="5">
+          </label>
+
+        </div>
+        <div class="modal__footer">
+          <button id="btn-save-settings" class="btn btn--primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="components/app.js"></script>
+</body>
+</html>
