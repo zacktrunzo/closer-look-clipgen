@@ -36,7 +36,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "YOUR_GITHUB_USERNAME",
+      "owner": "zacktrunzo",
       "repo": "closer-look-clipgen"
     },
     "extraResources": [
