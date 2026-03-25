@@ -141,8 +141,9 @@ class VideoProcessor {
   _blurStackFilter(assPath) {
     const esc = this._escapeAss(assPath);
     return [
-      '[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=25:luma_power=2[bg]',
-      '[0:v]scale=1080:-2[fg]',
+      '[0:v]split[v1][v2]',
+      '[v1]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=25:luma_power=2[bg]',
+      '[v2]scale=1080:-2[fg]',
       '[bg][fg]overlay=(W-w)/2:(H-h)/2[composed]',
       `[composed]ass='${esc}'[outv]`,
       '[0:a]acopy[outa]',
@@ -175,8 +176,9 @@ class VideoProcessor {
   _overlayBrandFilter(assPath) {
     const esc = this._escapeAss(assPath);
     return [
-      '[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=25:luma_power=2[bg]',
-      '[0:v]scale=1080:-2[fg]',
+      '[0:v]split[v1][v2]',
+      '[v1]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=25:luma_power=2[bg]',
+      '[v2]scale=1080:-2[fg]',
       '[bg][fg]overlay=(W-w)/2:(H-h)/2[composed]',
       `[composed]ass='${esc}'[captioned]`,
       '[1:v]scale=1080:1920[brand]',
