@@ -8,6 +8,21 @@
   // ── Platform class ───────────────────────────────
   if (window.clipgen.platform === 'darwin') document.body.classList.add('is-mac');
 
+  // ── Branded background image previews ───────────
+  window.clipgen.getBrandedAssetsBaseUrl().then((baseUrl) => {
+    const map = {
+      'branded-bg':        'CloserLook_Instagram_Reel_Background.jpg',
+      'branded-overlay-1': 'CloserLook_Instagram_Reel_Transparent_Overlay_1.png',
+      'branded-overlay-2': 'CloserLook_Instagram_Reel_Transparent_Overlay_2.png',
+    };
+    document.querySelectorAll('input[name="bg-mode"]').forEach((radio) => {
+      const filename = map[radio.value];
+      if (!filename) return;
+      const img = radio.closest('.bg-tile').querySelector('img');
+      if (img) img.src = `${baseUrl}/${filename}`;
+    });
+  });
+
   // ── DOM refs ────────────────────────────────────
   const views = {
     drop:     document.getElementById('view-drop'),

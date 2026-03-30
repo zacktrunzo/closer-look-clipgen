@@ -122,6 +122,13 @@ ipcMain.handle('open-folder', (_, folderPath) => {
   shell.openPath(folderPath);
 });
 
+ipcMain.handle('get-branded-assets-base-url', () => {
+  const dir = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets', 'Branded Backgrounds')
+    : path.join(__dirname, '..', '..', 'assets', 'Branded Backgrounds');
+  return 'file:///' + dir.replace(/\\/g, '/');
+});
+
 // ─── Two-phase pipeline (analyze → review → render) ──────────────
 
 ipcMain.handle('analyze-video', async (event, filePath, manualClips) => {

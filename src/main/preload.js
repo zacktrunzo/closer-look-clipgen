@@ -52,4 +52,7 @@ contextBridge.exposeInMainWorld('clipgen', {
 
   // Platform info
   platform: process.platform,
+
+  // Asset paths
+  getBrandedAssetsBaseUrl: () => ipcRenderer.invoke('get-branded-assets-base-url'),
 });
