@@ -1,6 +1,6 @@
 {
   "name": "closer-look-clipgen",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Automated Long-form to Short-form clip generator for the Closer Look podcast",
   "main": "src/main/main.js",
   "scripts": {

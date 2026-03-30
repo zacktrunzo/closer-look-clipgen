@@ -8,8 +8,12 @@ contextBridge.exposeInMainWorld('clipgen', {
   chooseBgImage:   () => ipcRenderer.invoke('choose-bg-image'),
   openFolder:     (p) => ipcRenderer.invoke('open-folder', p),
 
-  // Pipeline
-  processVideo: (filePath) => ipcRenderer.invoke('process-video', filePath),
+  // Pipeline — two-phase (analyze → review → render)
+  analyzeVideo: (filePath, manualClips) => ipcRenderer.invoke('analyze-video', filePath, manualClips),
+  renderClips:  (clips) => ipcRenderer.invoke('render-clips', clips),
+
+  // Legacy single-phase (kept for compatibility)
+  processVideo: (filePath, manualClips) => ipcRenderer.invoke('process-video', filePath, manualClips),
 
   // File drop via will-navigate interception
   onFileDropped: (cb) => {

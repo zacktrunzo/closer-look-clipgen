@@ -24,6 +24,16 @@ class VideoProcessor {
     fs.mkdirSync(this.tempDir, { recursive: true });
   }
 
+  /** Return the video's duration in seconds using ffprobe. */
+  getDuration() {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(this.inputPath, (err, meta) => {
+        if (err) return reject(new Error(`ffprobe failed: ${err.message}`));
+        resolve(meta && meta.format ? (meta.format.duration || null) : null);
+      });
+    });
+  }
+
   extractAudio(onProgress) {
     const outPath = path.join(this.tempDir, 'audio.wav');
     return new Promise((resolve, reject) => {
@@ -117,7 +127,19 @@ class VideoProcessor {
           '-pix_fmt', 'yuv420p',
         ])
         .output(tempOut)
-        .on('end', resolve)
+        .on('stderr', (line) => console.warn(`[FFmpeg clip ${index}]`, line))
+        .on('end', () => {
+          // Validate the output file was actually written with content
+          try {
+            const stat = fs.statSync(tempOut);
+            if (stat.size < 10000) {
+              return reject(new Error(`Clip render produced an unexpectedly small file (${stat.size} bytes) — FFmpeg may have failed silently.`));
+            }
+          } catch {
+            return reject(new Error('Clip render output file missing after FFmpeg completed.'));
+          }
+          resolve();
+        })
         .on('error', (err) => reject(new Error(`Clip render failed: ${err.message}`)))
         .run();
     });

@@ -10,15 +10,15 @@ function hexToAss(hex) {
 
 /**
  * Map a caption font-weight key to an ASS font name + bold flag.
- * Open Sans is used across all weights.
+ * Uses Arial (universally available on Windows/Mac) to ensure captions always render.
  */
 function getFontStyle(weight) {
   switch (weight) {
-    case 'extrabold': return { name: 'Open Sans ExtraBold', bold: -1 };
-    case 'semibold':  return { name: 'Open Sans SemiBold',  bold: 0  };
-    case 'regular':   return { name: 'Open Sans',           bold: 0  };
+    case 'extrabold': return { name: 'Arial', bold: -1 };
+    case 'semibold':  return { name: 'Arial', bold: 0  };
+    case 'regular':   return { name: 'Arial', bold: 0  };
     case 'bold':
-    default:          return { name: 'Open Sans',           bold: -1 };
+    default:          return { name: 'Arial', bold: -1 };
   }
 }
 
@@ -68,16 +68,44 @@ class CaptionGenerator {
    */
   generate(outputDir, index) {
     const clipWords = this.transcript.words.filter(
-      (w) => w.start >= this.clip.start_time - 0.1 && w.end <= this.clip.end_time + 0.1
+      (w) => w.start >= this.clip.start_time - 0.5 && w.start < this.clip.end_time
     );
 
+    // Offset word timestamps to be relative to the clip start (0-based).
+    // FFmpeg with input-side -ss normalizes output PTS to start at 0, so subtitle
+    // events must also start at 0 rather than using the source video's absolute times.
     const offsetWords = clipWords.map((w) => ({
-      word:  w.word.trim(),
+      word:  this._sanitizeAssText(w.word.trim()),
       start: Math.max(0, w.start - this.clip.start_time),
-      end:   w.end - this.clip.start_time,
-    }));
+      end:   Math.max(0, w.end   - this.clip.start_time),
+    })).filter((w) => w.end > w.start && w.word.length > 0);
 
-    const groups = this._groupWords(offsetWords, 4);
+    // Fallback: if Whisper returned no word-level timestamps for this clip's range,
+    // distribute the segment text evenly across the clip duration.
+    let groups;
+    if (offsetWords.length > 0) {
+      groups = this._groupWords(offsetWords, 4);
+    } else {
+      const clipDuration = this.clip.end_time - this.clip.start_time;
+      const segText = (this.transcript.segments || [])
+        .filter(s => s.end > this.clip.start_time - 0.5 && s.start < this.clip.end_time + 0.5)
+        .map(s => s.text.trim())
+        .join(' ');
+      const fallbackWords = segText.split(/\s+/).filter(w => w.length > 0);
+      if (fallbackWords.length > 0) {
+        const timePerWord = clipDuration / fallbackWords.length;
+        groups = this._groupWords(
+          fallbackWords.map((w, i) => ({
+            word:  this._sanitizeAssText(w),
+            start: i * timePerWord,
+            end:   (i + 1) * timePerWord,
+          })),
+          4
+        );
+      } else {
+        groups = [];
+      }
+    }
 
     let events = '';
     if (this.style === 'karaoke') {
@@ -161,6 +189,16 @@ class CaptionGenerator {
     const groups = [];
     for (let i = 0; i < words.length; i += max) groups.push(words.slice(i, i + max));
     return groups;
+  }
+
+  /** Escape characters that have special meaning in ASS subtitle format */
+  _sanitizeAssText(text) {
+    return text
+      .replace(/\\/g, '')     // backslash starts ASS override tags
+      .replace(/\{/g, '')     // opening brace starts override block
+      .replace(/\}/g, '')     // closing brace ends override block
+      .replace(/\n/g, ' ')    // newlines break dialogue line format
+      .replace(/\r/g, '');
   }
 
   _ts(seconds) {

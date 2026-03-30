@@ -75,6 +75,17 @@
             <button id="btn-browse" class="btn btn--ghost">or browse files</button>
           </div>
         </div>
+
+        <!-- Manual timecodes toggle (sits below the drop zone card) -->
+        <div id="timecode-panel" class="timecode-panel">
+          <button id="btn-toggle-timecodes" class="timecode-panel__toggle">+ Manual timecodes</button>
+          <div id="timecode-body" class="timecode-panel__body" hidden>
+            <textarea id="input-timecodes" class="timecode-panel__input"
+              placeholder="1:23 - 2:05&#10;15:30 - 16:15 My clip label&#10;1:02:30 - 1:03:20"></textarea>
+            <span class="timecode-panel__hint">One per line · MM:SS – MM:SS or H:MM:SS – H:MM:SS · Up to 3:00 per clip · Optional label after times</span>
+          </div>
+        </div>
+
       </section>
 
       <!-- ===== PIPELINE VIEW ===== -->
@@ -107,6 +118,21 @@
             <div class="pipeline__bar-fill" id="pipeline-bar"></div>
           </div>
           <div class="pipeline__detail" id="pipeline-detail"></div>
+        </div>
+      </section>
+
+      <!-- ===== REVIEW VIEW ===== -->
+      <section id="view-review" class="view">
+        <div class="review">
+          <div class="review__header">
+            <button id="btn-review-back" class="btn btn--ghost btn--sm">← Start over</button>
+            <div class="review__title-block">
+              <div class="review__eyebrow">Closer Look ClipGen</div>
+              <h2 class="review__title">Review Clips</h2>
+            </div>
+            <button id="btn-review-render" class="btn btn--primary btn--sm">Render clips →</button>
+          </div>
+          <div class="review__list" id="review-list"></div>
         </div>
       </section>
 
@@ -261,10 +287,10 @@
           <label class="field">
             <span class="field__label">Caption Font Weight</span>
             <select id="select-fontweight" class="field__input">
-              <option value="regular">Open Sans Regular</option>
-              <option value="semibold">Open Sans SemiBold</option>
-              <option value="bold">Open Sans Bold (default)</option>
-              <option value="extrabold">Open Sans ExtraBold</option>
+              <option value="regular">Regular</option>
+              <option value="semibold">SemiBold</option>
+              <option value="bold">Bold (default)</option>
+              <option value="extrabold">ExtraBold</option>
             </select>
           </label>
 
@@ -285,7 +311,7 @@
 
           <label class="field">
             <span class="field__label">Max Clips per Episode</span>
-            <input type="number" id="input-maxclips" class="field__input" min="1" max="10" value="5">
+            <input type="number" id="input-maxclips" class="field__input" min="1" max="25" value="10">
           </label>
 
         </div>

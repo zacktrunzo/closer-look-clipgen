@@ -449,6 +449,55 @@ body.is-mac .titlebar {
   line-height: 1.6;
 }
 
+/* ── Manual Timecodes Panel ───────────────────── */
+.timecode-panel {
+  width: 80%;
+  max-width: 560px;
+  margin-top: 14px;
+  text-align: center;
+}
+.timecode-panel__toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  transition: color 0.15s, background 0.15s;
+}
+.timecode-panel__toggle:hover { color: var(--accent); }
+.timecode-panel__toggle.is-open { color: var(--accent); }
+.timecode-panel__body {
+  margin-top: 10px;
+  text-align: left;
+}
+.timecode-panel__input {
+  width: 100%;
+  min-height: 96px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.75;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+}
+.timecode-panel__input:focus { border-color: var(--border-focus); }
+.timecode-panel__input::placeholder { color: var(--text-muted); }
+.timecode-panel__hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
 /* ── Buttons ──────────────────────────────────── */
 .btn {
   font-family: var(--font-sans);
@@ -897,6 +946,179 @@ body.is-mac .titlebar {
   white-space: pre-wrap;
   word-break: break-word;
   user-select: text;
+}
+
+/* ── Review View ──────────────────────────────── */
+.review {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.review__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+.review__title-block {
+  flex: 1;
+  text-align: center;
+}
+
+.review__eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.review__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.review__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Review Item ───────────────────────────────── */
+.review-item {
+  display: flex;
+  gap: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  align-items: flex-start;
+}
+
+.review-item__preview {
+  position: relative;
+  flex-shrink: 0;
+  width: 120px;
+  height: 213px; /* 9:16 ratio */
+  background: #000;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.review-item__preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.review-item__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.review-item__play:hover { background: rgba(0,0,0,0.6); }
+.review-item__play.playing { background: rgba(0,0,0,0.25); }
+
+.review-item__controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.review-item__headline {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.review-item__headline:focus { border-color: var(--border-focus); }
+
+.review-item__timing {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-item__timecode {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-item__tc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  width: 26px;
+  flex-shrink: 0;
+}
+
+.review-item__tc-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  min-width: 54px;
+  flex-shrink: 0;
+}
+
+.review-item__adj-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.review-item__adj-btns button {
+  padding: 3px 7px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  white-space: nowrap;
+}
+.review-item__adj-btns button:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.review-item__duration {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 /* ── Scrollbar ────────────────────────────────── */

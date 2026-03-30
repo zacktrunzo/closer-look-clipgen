@@ -20,6 +20,11 @@ RULES:
 - Return UP TO {count} clips (fewer is fine if the transcript doesn't support more), ranked by viral potential.
 - If you cannot find any suitable clips, return: {"clips": []}
 
+CRITICAL — ALL OUTPUT MUST BE GROUNDED IN THE TRANSCRIPT:
+- The \`headline\` must use the speaker's actual words — extract the single most quotable phrase or sentence spoken in the clip. Do NOT write a generic description.
+- The \`hook\` must be an exact or near-exact quote of the very first compelling line spoken at the start of the clip — copy it directly from the transcript.
+- The \`why_viral\` must reference the specific claim, story, or moment in that clip — not a generic statement about virality.
+
 RESPOND WITH ONLY valid JSON — no markdown, no commentary, no backticks.`;
 
 const USER_PROMPT_TEMPLATE = `Here is the full transcript of a Closer Look podcast episode.
@@ -29,6 +34,7 @@ TRANSCRIPT:
 {transcript}
 
 Find the {count} most viral-worthy segments ({min}–{max} seconds each).
+For each clip, extract the headline and hook directly from the words spoken — do not paraphrase or invent new language.
 
 Respond with this exact JSON structure:
 {
@@ -36,9 +42,9 @@ Respond with this exact JSON structure:
     {
       "start_time": <number — seconds>,
       "end_time": <number — seconds>,
-      "headline": "<catchy 5-8 word headline for this clip>",
-      "hook": "<the opening line that grabs attention>",
-      "why_viral": "<one sentence explaining why this will perform>"
+      "headline": "<most quotable phrase the speaker actually says in this clip>",
+      "hook": "<exact or near-exact quote of the first compelling sentence spoken in this clip>",
+      "why_viral": "<one sentence referencing the specific moment/claim/story that makes this clip shareable>"
     }
   ]
 }`;
@@ -58,26 +64,32 @@ class ClipIntelligence {
    * @param {number} opts.maxSeconds  — maximum clip length (default 60)
    * @returns {Promise<Array>} Array of clip objects
    */
-  async findClips(transcript, { maxClips = 5, minSeconds = 30, maxSeconds = 60 } = {}) {
+  async findClips(transcript, { maxClips = 5, minSeconds = 30, maxSeconds = 60, maxDuration = null } = {}) {
     const formattedTranscript = transcript.segments
       .map((s) => `[${this._fmtTime(s.start)} → ${this._fmtTime(s.end)}] ${s.text.trim()}`)
       .join('\n');
 
+    const durationNote = maxDuration != null
+      ? `\n- The video is ${Math.floor(maxDuration)} seconds long. Do NOT return clips with start_time or end_time past ${Math.floor(maxDuration)} seconds.`
+      : '';
 
-    const systemMsg = SYSTEM_PROMPT
+    // Ask for up to 50% more than requested so filtering still yields maxClips
+    const requestCount = Math.ceil(maxClips * 1.5);
+
+    const systemMsg = (SYSTEM_PROMPT + durationNote)
       .replace('{min}', minSeconds)
       .replace('{max}', maxSeconds)
-      .replace('{count}', maxClips);
+      .replace('{count}', requestCount);
 
     const userMsg = USER_PROMPT_TEMPLATE
       .replace('{transcript}', formattedTranscript)
-      .replace('{count}', maxClips)
+      .replace('{count}', requestCount)
       .replace('{min}', minSeconds)
       .replace('{max}', maxSeconds);
 
     const response = await this.client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 8000,
       system: systemMsg,
       messages: [{ role: 'user', content: userMsg }],
     });
@@ -104,8 +116,9 @@ class ClipIntelligence {
           typeof c.start_time === 'number' &&
           typeof c.end_time === 'number' &&
           c.end_time > c.start_time &&
-          dur >= minSeconds - 5 &&
-          dur <= maxSeconds + 5
+          dur >= Math.max(5, minSeconds - 15) &&
+          dur <= maxSeconds + 60 &&
+          (maxDuration == null || c.start_time < maxDuration - 1)
         );
       })
       .slice(0, maxClips);
